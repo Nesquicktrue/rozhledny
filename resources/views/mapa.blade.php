@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
     <script type="text/javascript">
         const allTowers = {!! json_encode($allTowers->toArray()) !!} // načítám allTowers z PHP
+        const myTowers = {!! json_encode($myTowers->toArray()) !!} // načítám myTowers z PHP
 
         let dropImgRed = "https://api.mapy.cz/img/api/marker/drop-red.png";
         let dropImgBlue = "https://api.mapy.cz/img/api/marker/drop-blue.png";
@@ -45,12 +46,14 @@
             card.getBody().innerHTML = '<i>Zobrazit rohlednu na:</i><br><a href="http://' + tower.url +
                 '" target="_blank">Rozhlednovým rájem.cz</a>' +
                 '<br><a href="https://mapy.cz/turisticka?q=rozhledna ' + tower.name +
-                '" target="_blank">Mapy.cz</a><br><hr>' +
+                '" target="_blank">Mapy.cz</a><br><hr><br>' +
                 '<form class="forma">' +
                 '<input type="hidden" id="towerIDinput" name="towerid" value="' + tower.id + '"></input>' +
-                '<input class="oznac" type="submit"></input>' +
-                '<input type="date" id="visitedAtInput" name="visitedAt"></input>' +
-                '</form>';
+                '<label>Den návštěvy:</label>' +
+                '<div class="flex">' +
+                '<input class="flex-auto m-1" type="date" id="visitedAtInput" name="visitedAt"></input>' +
+                '<button class="oznac flex-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-1" type="submit">Označ jako navštívenou</button>' +
+                '</form></div>';
 
             let znacka = new SMap.Marker(c, null, options);
             znacka.decorate(SMap.Marker.Feature.Card, card);
@@ -64,12 +67,12 @@
         let markerMyTowers = [];
         let souradniceMyTowers = [];
 
-        myTowers = [{
+/*         myTowers = [{
             name: 'Moje první',
             x: 16.602806,
             y: 50.11524,
             url: 'test'
-        }]
+        }] */
 
         myTowers.forEach((tower) => {
             /* Vyrobit značky */
@@ -118,11 +121,11 @@
         m.setCenterZoom(cz[0], cz[1]);
 
         let testTower = {
-            name: 'Amálka',
-            x: 14.671449,
-            y: 49.400172,
+            name: 'Borůvková hora',
+            x: 16.902669,
+            y: 50.390713,
             date: '2022-08-26',
-            url: 'test'
+            url: 'www.rozhlednovymrajem.cz/boruvkova-hora'
         }
 
         function makeBlue(newTower) {
@@ -165,11 +168,11 @@
                             "_token": "{{ csrf_token() }}"
                         },
                         success: function(data) {
-                            makeBlue(testTower);
-
-                            //layerAllTowers.redraw();
-                            //layerMyTowers.redraw();
-                            //console.log(layerMyTowers.getMarkers())
+                            let result = allTowers.find(
+                            obj => { //najdi objekt rozhledny v allTowers
+                                return obj.id == towerID
+                            })
+                            makeBlue(result) // a udělej ho modrým
                         },
                         error: function(error) {
                             console.log(error)

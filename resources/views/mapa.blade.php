@@ -15,6 +15,7 @@
     <script type="text/javascript">
         const allTowers = {!! json_encode($allTowers->toArray()) !!} // načítám allTowers z PHP
         const myTowers = {!! json_encode($myTowers->toArray()) !!} // načítám myTowers z PHP
+        const myTowersVisitedAt = {!! json_encode($myTowersVisitedAt->toArray()) !!} // načítám myTowers z PHP
 
         let dropImgRed = "https://api.mapy.cz/img/api/marker/drop-red.png";
         let dropImgBlue = "https://api.mapy.cz/img/api/marker/drop-blue.png";
@@ -58,7 +59,6 @@
             let znacka = new SMap.Marker(c, null, options);
             znacka.decorate(SMap.Marker.Feature.Card, card);
 
-
             souradnice.push(c);
             markerAllTowers.push(znacka);
         })
@@ -66,13 +66,6 @@
         // Vyrob značky pro navštívené rozhledny
         let markerMyTowers = [];
         let souradniceMyTowers = [];
-
-/*         myTowers = [{
-            name: 'Moje první',
-            x: 16.602806,
-            y: 50.11524,
-            url: 'test'
-        }] */
 
         myTowers.forEach((tower) => {
             /* Vyrobit značky */
@@ -89,7 +82,7 @@
 
             let card = new SMap.Card();
             card.getHeader().innerHTML = "<strong>" + tower.name + "</strong>";
-            card.getBody().innerHTML = '<strong>Navštíveno dne:' + tower.date + '</strong><br>' +
+            card.getBody().innerHTML = 'Navštíveno dne:<strong> ' + searchForVisitedAt(tower.id) + '</strong><br>' +
                 '<i>Zobrazit rohlednu na:</i><br><a href="http://' + tower.url +
                 '" target="_blank">Rozhlednovým rájem.cz</a>' +
                 '<br><a href="https://mapy.cz/turisticka?q=rozhledna ' + tower.name +
@@ -120,15 +113,7 @@
         let cz = m.computeCenterZoom(souradnice); /* Spočítat pozici mapy tak, aby značky byly vidět */
         m.setCenterZoom(cz[0], cz[1]);
 
-        let testTower = {
-            name: 'Borůvková hora',
-            x: 16.902669,
-            y: 50.390713,
-            date: '2022-08-26',
-            url: 'www.rozhlednovymrajem.cz/boruvkova-hora'
-        }
-
-        function makeBlue(newTower) {
+        function makeBlue(newTower, visited_at) {
             let coords = SMap.Coords.fromWGS84(newTower.x, newTower.y);
             let options = {
                 url: dropImgBlue,
@@ -141,7 +126,7 @@
 
             let card = new SMap.Card();
             card.getHeader().innerHTML = "<strong>" + newTower.name + "</strong>";
-            card.getBody().innerHTML = '<strong>Navštíveno dne:' + newTower.date + '</strong><br>' +
+            card.getBody().innerHTML = 'Navštíveno dne:<strong> ' + searchForVisitedAt(newTower.id, visited_at) + '</strong><br>' +
                 '<i>Zobrazit rohlednu na:</i><br><a href="http://' + newTower.url +
                 '" target="_blank">Rozhlednovým rájem.cz</a>' +
                 '<br><a href="https://mapy.cz/turisticka?q=rozhledna ' + newTower.name +
@@ -172,7 +157,7 @@
                             obj => { //najdi objekt rozhledny v allTowers
                                 return obj.id == towerID
                             })
-                            makeBlue(result) // a udělej ho modrým
+                            makeBlue(result, visitedAt) // a udělej ho modrým
                         },
                         error: function(error) {
                             console.log(error)
@@ -182,6 +167,18 @@
 
             }, 500);
         })
+        
+        // Hledá datum návštěvy v DB, nebo přebírá aktuálně napsaný. Datum následně formátuje
+        function searchForVisitedAt(id, date) {
+            let formatedDate;
+            if (!date) {
+                const searchedTowerObj = myTowersVisitedAt.find((dateAndID) => dateAndID.tower_id==id)
+                formatedDate = new Date(searchedTowerObj.visited_at)
+            } else {
+                formatedDate = new Date(date)
+            }
+            return formatedDate.toLocaleDateString()
+        }
     </script>
     </body>
 </x-app-layout>

@@ -16,9 +16,9 @@ class MapController extends Controller
         
         $myTowersIDs = Visit::select('tower_id')->where('user_id', Auth::id())->pluck('tower_id')->toArray();
         $myTowers = Tower::whereIn('id', $myTowersIDs)->get();
-        $myTowersCreatedAt = Visit::select('tower_id', 'visited_at')->where('user_id', Auth::id())->get();
+        $myTowersVisitedAt = Visit::select('tower_id', 'visited_at')->where('user_id', Auth::id())->get();
 
-        return view('mapa', compact('allTowers', 'myTowers', 'myTowersCreatedAt'));
+        return view('mapa', compact('allTowers', 'myTowers', 'myTowersVisitedAt'));
     }
     
     public function add (Request $request)

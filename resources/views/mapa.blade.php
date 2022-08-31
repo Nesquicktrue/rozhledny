@@ -87,6 +87,8 @@
                 '" target="_blank">Rozhlednovým rájem.cz</a>' +
                 '<br><a href="https://mapy.cz/turisticka?q=rozhledna ' + tower.name +
                 '" target="_blank">Mapy.cz</a>';
+            card.getFooter().innerHTML = '<hr><button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">'+
+                                        'Označit zpět jako nenavštíveno</button>'
 
 
             let znacka = new SMap.Marker(c, null, options);
@@ -168,12 +170,16 @@
             }, 500);
         })
         
-        // Hledá datum návštěvy v DB, nebo přebírá aktuálně napsaný. Datum následně formátuje
+        // Hledá datum návštěvy v DB, nebo přebírá aktuálně napsaný. Když není - dosadí dnešek. Datum následně formátuje.
         function searchForVisitedAt(id, date) {
             let formatedDate;
             if (!date) {
                 const searchedTowerObj = myTowersVisitedAt.find((dateAndID) => dateAndID.tower_id==id)
-                formatedDate = new Date(searchedTowerObj.visited_at)
+                if (!searchedTowerObj) {
+                    formatedDate = new Date()
+                } else {
+                    formatedDate = new Date(searchedTowerObj.visited_at)
+                }
             } else {
                 formatedDate = new Date(date)
             }

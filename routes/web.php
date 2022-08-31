@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\BikeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +23,10 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
+// Mapa:
 Route::get('/mapa', 'App\Http\Controllers\MapController@show')->middleware(['auth'])->name('mapa');
-
-//Route::get('/mapa/add', 'App\Http\Controllers\MapController@add')->middleware(['auth'])->name('add');
 Route::post('/mapa/add', 'App\Http\Controllers\MapController@add');
+
+Route::get('/bikes', 'App\Http\Controllers\BikeController@show')->middleware(['auth'])->name('bikes');
 
 require __DIR__.'/auth.php';
